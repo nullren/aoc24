@@ -1,5 +1,3 @@
-use std::collections::BTreeSet;
-
 fn main() {
     let input = include_str!("../inputs/1.txt");
     println!("{}", problem_1(input));
@@ -7,19 +5,21 @@ fn main() {
 
 fn problem_1(input: &str) -> i32 {
     // read input
-    let (set1, set2) = read_columns_into_sorted_sets(input);
+    let (set1, set2) = read_columns_into_sorted_lists(input);
     sum_pairwise_difference(set1, set2)
 }
 
-fn read_columns_into_sorted_sets(input: &str) -> (BTreeSet<i32>, BTreeSet<i32>) {
-    let mut set1 = BTreeSet::new();
-    let mut set2 = BTreeSet::new();
+fn read_columns_into_sorted_lists(input: &str) -> (Vec<i32>, Vec<i32>) {
+    let mut l1 = Vec::new();
+    let mut l2 = Vec::new();
     input.lines().for_each(|line| {
         let nums = read_ints_from_str(line);
-        set1.insert(nums[0]);
-        set2.insert(nums[1]);
+        l1.push(nums[0]);
+        l2.push(nums[1]);
     });
-    (set1, set2)
+    l1.sort();
+    l2.sort();
+    (l1, l2)
 }
 
 fn read_ints_from_str(input: &str) -> Vec<i32> {
@@ -29,10 +29,10 @@ fn read_ints_from_str(input: &str) -> Vec<i32> {
         .collect()
 }
 
-fn sum_pairwise_difference(set1: BTreeSet<i32>, set2: BTreeSet<i32>) -> i32 {
+fn sum_pairwise_difference(set1: Vec<i32>, set2: Vec<i32>) -> i32 {
     set1.iter()
         .zip(set2.iter())
-        .map(|(x,y)| difference(*x, *y))
+        .map(|(x, y)| difference(*x, *y))
         .sum()
 }
 
