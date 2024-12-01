@@ -1,9 +1,9 @@
 fn main() {
     let input = include_str!("../inputs/1.txt");
-    println!("{}", problem_1(input));
+    println!("{}", problem_1_part_1(input));
 }
 
-fn problem_1(input: &str) -> i32 {
+fn problem_1_part_1(input: &str) -> i32 {
     // read input
     let (set1, set2) = read_columns_into_sorted_lists(input);
     sum_pairwise_difference(set1, set2)
