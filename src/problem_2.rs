@@ -1,9 +1,38 @@
 pub fn part_1(input: &str) -> i32 {
-    todo!()
+    input.lines().filter(|line: &&str| level_safe(*line)).count() as i32
 }
 
 pub fn part_2(input: &str) -> i32 {
     todo!()
+}
+
+fn level_safe(line: &str) -> bool {
+    let mut prev: Option<i32> = None;
+    let mut increasing = None;
+    for s in line.split_whitespace() {
+        let num = s.parse::<i32>().unwrap();
+        if let Some(prev) = prev {
+            let diff = (num - prev).abs();
+            if !(1..=3).contains(&diff) {
+                return false;
+            }
+            if let Some(increasing) = increasing {
+                if increasing {
+                    if num < prev {
+                        return false;
+                    }
+                } else {
+                    if num > prev {
+                        return false;
+                    }
+                }
+            } else {
+                increasing = Some(num > prev);
+            }
+        }
+        prev = Some(num);
+    }
+    true
 }
 
 #[cfg(test)]
