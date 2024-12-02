@@ -1,4 +1,5 @@
 mod problem_1;
+mod problem_2;
 
 fn main() {
     let input = include_str!("../inputs/1.txt");
