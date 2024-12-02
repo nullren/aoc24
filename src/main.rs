@@ -7,38 +7,78 @@ fn main() {
 }
 
 fn problem_1_part_1(input: &str) -> i32 {
-    // read input
-    let (set1, set2) = read_columns_into_sorted_lists(input);
-    sum_pairwise_difference(set1, set2)
+    let mut columns = vec![
+        ColumnType::ListInts(Vec::new()),
+        ColumnType::ListInts(Vec::new()),
+    ];
+    read_into_columns(input, &mut columns);
+
+    columns.iter_mut().for_each(|c| c.sort());
+    columns[0]
+        .as_slice()
+        .iter()
+        .zip(columns[1].as_slice().iter())
+        .map(|(x, y)| (x - y).abs())
+        .sum()
 }
 
 fn problem_1_part_2(input: &str) -> i32 {
-    let (vs, freq_map) = read_list_and_frequency_map(input);
+    let mut columns = vec![
+        ColumnType::ListInts(Vec::new()),
+        ColumnType::FrequencyMapInts(HashMap::new()),
+    ];
+    read_into_columns(input, &mut columns);
+
+    let vs = columns[0].as_slice();
+    let freq_map = columns[1].as_freq_map();
     vs.iter().map(|v| v * freq_map.get(v).unwrap_or(&0)).sum()
 }
 
-fn read_columns_into_sorted_lists(input: &str) -> (Vec<i32>, Vec<i32>) {
-    let mut l1 = Vec::new();
-    let mut l2 = Vec::new();
-    input.lines().for_each(|line| {
-        let nums = read_ints_from_str(line);
-        l1.push(nums[0]);
-        l2.push(nums[1]);
-    });
-    l1.sort();
-    l2.sort();
-    (l1, l2)
+#[derive(Debug)]
+enum ColumnType {
+    ListInts(Vec<i32>),
+    FrequencyMapInts(HashMap<i32, i32>),
 }
 
-fn read_list_and_frequency_map(input: &str) -> (Vec<i32>, HashMap<i32, i32>) {
-    let mut l = Vec::new();
-    let mut freq_map = HashMap::new();
+impl ColumnType {
+    fn insert(&mut self, num: i32) {
+        match self {
+            ColumnType::ListInts(l) => l.push(num),
+            ColumnType::FrequencyMapInts(freq_map) => {
+                freq_map.entry(num).and_modify(|v| *v += 1).or_insert(1);
+            }
+        }
+    }
+
+    fn as_slice(&self) -> &[i32] {
+        match self {
+            ColumnType::ListInts(l) => l.as_slice(),
+            _ => panic!("Not a list"),
+        }
+    }
+
+    fn sort(&mut self) {
+        match self {
+            ColumnType::ListInts(l) => l.sort(),
+            _ => panic!("Not a list"),
+        }
+    }
+
+    fn as_freq_map(&self) -> &HashMap<i32, i32> {
+        match self {
+            ColumnType::FrequencyMapInts(freq_map) => freq_map,
+            _ => panic!("Not a frequency map"),
+        }
+    }
+}
+
+fn read_into_columns(input: &str, columns: &mut [ColumnType]) {
     input.lines().for_each(|line| {
         let nums = read_ints_from_str(line);
-        l.push(nums[0]);
-        freq_map.entry(nums[1]).and_modify(|v| *v += 1).or_insert(1);
+        nums.iter().enumerate().for_each(|(i, &num)| {
+            columns[i].insert(num);
+        });
     });
-    (l, freq_map)
 }
 
 fn read_ints_from_str(input: &str) -> Vec<i32> {
@@ -46,21 +86,6 @@ fn read_ints_from_str(input: &str) -> Vec<i32> {
         .split_whitespace()
         .map(|s| s.parse().unwrap())
         .collect()
-}
-
-fn sum_pairwise_difference(set1: Vec<i32>, set2: Vec<i32>) -> i32 {
-    set1.iter()
-        .zip(set2.iter())
-        .map(|(x, y)| difference(*x, *y))
-        .sum()
-}
-
-fn difference(num1: i32, num2: i32) -> i32 {
-    if num2 > num1 {
-        num2 - num1
-    } else {
-        num1 - num2
-    }
 }
 
 #[cfg(test)]
