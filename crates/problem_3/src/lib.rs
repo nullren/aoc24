@@ -1,6 +1,7 @@
+use nom::branch::alt;
 use nom::bytes::complete::{tag, take, take_while_m_n};
 use nom::character::complete::char;
-use nom::combinator::map_res;
+use nom::combinator::{map, map_res};
 use nom::sequence::{delimited, preceded, separated_pair};
 use nom::IResult;
 use std::error::Error;
@@ -54,15 +55,56 @@ fn mul_expr(i: &str) -> IResult<&str, i32> {
     )(i)
 }
 
-pub fn part_2(_input: &str) -> Option<i32> {
-    None
+enum Expr {
+    Mul(i32),
+    Do,
+    Dont,
+}
+
+fn expr(i: &str) -> IResult<&str, Expr> {
+    alt((
+        map(mul_expr, Expr::Mul),
+        map(tag("do()"), |_| Expr::Do),
+        map(tag("don't()"), |_| Expr::Dont),
+    ))(i)
+}
+
+pub fn part_2(input: &str) -> Option<i32> {
+    let mut result = 0;
+    let mut enabled = true;
+    let mut input = input;
+    loop {
+        match expr(input) {
+            Ok((i, Expr::Mul(o))) => {
+                if enabled {
+                    result += o;
+                }
+                input = i;
+            }
+            Ok((i, Expr::Do)) => {
+                enabled = true;
+                input = i;
+            }
+            Ok((i, Expr::Dont)) => {
+                enabled = false;
+                input = i;
+            }
+            Err(_) => match take::<usize, &str, ()>(1usize)(input) {
+                Ok((i, _)) => {
+                    input = i;
+                }
+                Err(_) => {
+                    break;
+                }
+            },
+        }
+    }
+    Some(result)
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    const INPUT: &str = "xmul(2,4)%&mul[3,7]!@^do_not_mul(5,5)+mul(32,64]then(mul(11,8)mul(8,5))";
 
     #[test]
     fn test_from_digits() {
@@ -72,13 +114,15 @@ mod tests {
 
     #[test]
     fn test_part_1() {
-        let result = part_1(INPUT);
+        let input = "xmul(2,4)%&mul[3,7]!@^do_not_mul(5,5)+mul(32,64]then(mul(11,8)mul(8,5))";
+        let result = part_1(input);
         assert_eq!(result, Some(161));
     }
 
     #[test]
     fn test_part_2() {
-        let result = part_2(INPUT);
-        assert_eq!(result, None);
+        let input = "xmul(2,4)&mul[3,7]!^don't()_mul(5,5)+mul(32,64](mul(11,8)undo()?mul(8,5))";
+        let result = part_2(input);
+        assert_eq!(result, Some(48));
     }
 }
