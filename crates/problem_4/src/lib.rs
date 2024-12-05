@@ -124,10 +124,31 @@ impl Grid {
         .filter(|&&x| x)
         .count() as i32
     }
+
+    fn mas_at(&self, x: usize, y: usize) -> bool {
+        if y < 1 || y > self.grid.len() - 2 || x < 1 || x > self.grid[0].len() - 2 {
+            return false;
+        }
+        self.grid[y][x] == 'A'
+            && ((self.grid[y - 1][x - 1] == 'M' && self.grid[y + 1][x + 1] == 'S')
+                || (self.grid[y - 1][x - 1] == 'S' && self.grid[y + 1][x + 1] == 'M'))
+            && ((self.grid[y - 1][x + 1] == 'M' && self.grid[y + 1][x - 1] == 'S')
+                || (self.grid[y - 1][x + 1] == 'S' && self.grid[y + 1][x - 1] == 'M'))
+    }
 }
 
-pub fn part_2(_input: &str) -> Option<i32> {
-    None
+pub fn part_2(input: &str) -> Option<i32> {
+    let grid = Grid::new(input);
+
+    let mut mas_count = 0;
+    for (y, row) in grid.enumerate() {
+        for (x, _col) in row.iter().enumerate() {
+            if grid.mas_at(x, y) {
+                mas_count += 1;
+            }
+        }
+    }
+    Some(mas_count)
 }
 
 #[cfg(test)]
@@ -154,6 +175,6 @@ MXMXAXMASX";
     #[test]
     fn test_part_2() {
         let result = part_2(INPUT);
-        assert_eq!(result, None);
+        assert_eq!(result, Some(9));
     }
 }
