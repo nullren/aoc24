@@ -4,4 +4,4 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-problem_4 = { path = "../problem_4" }
+problem_5 = { path = "../problem_5" }
