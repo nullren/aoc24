@@ -62,3 +62,18 @@ fn topological_sort(pages: &[i32], rules: &Rules) -> Vec<i32> {
 pub fn fix_order(pages: &[i32], rules: &Rules) -> Vec<i32> {
     topological_sort(pages, rules)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_fix_order() {
+        let mut rules = Rules::new();
+        rules.add_dependency(29, 13);
+
+        let pages = vec![61, 13, 29];
+        let expected = vec![61, 29, 13];
+        assert_eq!(fix_order(&pages, &rules), expected);
+    }
+}

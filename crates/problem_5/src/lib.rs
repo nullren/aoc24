@@ -33,6 +33,9 @@ fn pages(input: &str) -> Vec<i32> {
 }
 
 fn middle_page(pages: Vec<i32>) -> i32 {
+    if pages.len() == 0 {
+        return 0;
+    }
     let middle = pages.len() / 2;
     pages[middle]
 }
