@@ -10,12 +10,21 @@ pub fn part_2(_input: &str) -> Option<i32> {
 mod tests {
     use super::*;
 
-    const INPUT: &str = "";
+    const INPUT: &str = "....#.....
+.........#
+..........
+..#.......
+.......#..
+..........
+.#..^.....
+........#.
+#.........
+......#...";
 
     #[test]
     fn test_part_1() {
         let result = part_1(INPUT);
-        assert_eq!(result, None);
+        assert_eq!(result, Some(41));
     }
 
     #[test]
