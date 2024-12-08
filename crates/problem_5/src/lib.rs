@@ -75,22 +75,11 @@ fn topo_rules(input: &str) -> topological::Rules {
     rules
 }
 
+mod chatgpt;
+
 pub fn part_2(input: &str) -> Option<i32> {
-    let (part_1, part_2) = input.split_once("\n\n").unwrap();
-    let mut sum = 0;
-
-    let rules = rules(part_1);
-    let trules = topo_rules(part_1);
-
-    for line in part_2.lines() {
-        let pages = pages(line);
-        if !correct_order(pages.clone(), &rules) {
-            let sorted = topological::fix_order(&pages, &trules);
-            sum += middle_page(sorted);
-        }
-    }
-
-    Some(sum)
+    let result = chatgpt::solve(input);
+    Some(result)
 }
 
 #[cfg(test)]
