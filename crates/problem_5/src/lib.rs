@@ -50,6 +50,23 @@ fn correct_order(pages: Vec<i32>, rules: &Rules) -> bool {
     true
 }
 
+fn fix_order(pages: &[i32], rules: &Rules) -> Vec<i32> {
+    let empty = HashSet::new();
+    let mut seen = HashSet::new();
+    let mut fixed = pages.to_vec();
+    for (i, page) in pages.iter().enumerate() {
+        let cannot_be = rules.get(&page.to_string()).unwrap_or(&empty);
+        let mut intersection = seen.intersection(cannot_be);
+        if let Some(out_of_order_page) = intersection.next() {
+            let oop = out_of_order_page.parse::<i32>().unwrap();
+            let oop_index = pages.iter().position(|&x| x == oop).unwrap();
+            fixed.swap(i, oop_index);
+        }
+        seen.insert(page.to_string());
+    }
+    fixed
+}
+
 fn get_middle_if_correct(input: &str, rules: &Rules) -> Option<i32> {
     let pages = pages(input);
     if correct_order(pages.clone(), &rules) {
@@ -59,8 +76,36 @@ fn get_middle_if_correct(input: &str, rules: &Rules) -> Option<i32> {
     }
 }
 
-pub fn part_2(_input: &str) -> Option<i32> {
-    None
+pub fn part_2(input: &str) -> Option<i32> {
+    let (part_1, part_2) = input.split_once("\n\n").unwrap();
+    let mut sum = 0;
+    let rules = rules(part_1);
+
+    // rules define a topological sort edges, for each line, sort the pages
+    // if the order is incorrect, find the middle page
+
+    for line in part_2.lines() {
+        if let Some(middle) = get_middle_if_incorrect(line, &rules) {
+            sum += middle;
+        }
+    }
+
+    Some(sum)
+}
+
+fn get_middle_if_incorrect(input: &str, rules: &Rules) -> Option<i32> {
+    let pages = pages(input);
+    if !correct_order(pages.clone(), &rules) {
+        let fixed_pages = fix_order(&pages, &rules);
+        println!("{:?} becomes {:?}", pages, fixed_pages);
+        Some(middle_page(fixed_pages))
+    } else {
+        None
+    }
+}
+
+fn fix_order(pages: &[i32], rules: &Rules) -> Vec<i32> {
+    // topologically sort the pages according to the rules
 }
 
 #[cfg(test)]
@@ -120,6 +165,6 @@ mod tests {
     #[test]
     fn test_part_2() {
         let result = part_2(INPUT);
-        assert_eq!(result, None);
+        assert_eq!(result, Some(123));
     }
 }
