@@ -33,7 +33,7 @@ fn pages(input: &str) -> Vec<i32> {
 }
 
 fn middle_page(pages: Vec<i32>) -> i32 {
-    if pages.len() == 0 {
+    if pages.is_empty() {
         return 0;
     }
     let middle = pages.len() / 2;
@@ -60,19 +60,6 @@ fn get_middle_if_correct(input: &str, rules: &Rules) -> Option<i32> {
     } else {
         None
     }
-}
-
-mod topological;
-
-fn topo_rules(input: &str) -> topological::Rules {
-    let mut rules = topological::Rules::new();
-    for line in input.lines() {
-        let (before, after) = line.split_once("|").unwrap();
-        let before = before.parse::<i32>().unwrap();
-        let after = after.parse::<i32>().unwrap();
-        rules.add_dependency(before, after);
-    }
-    rules
 }
 
 mod chatgpt;
