@@ -119,7 +119,6 @@ impl Guard {
 struct World {
     grid: Vec<Vec<char>>,
     guard: Guard,
-    path: Vec<Position>,
 }
 
 impl World {
@@ -131,11 +130,7 @@ impl World {
                 if let Ok(direction) = Direction::try_from(cell) {
                     let position = Position::new(row, col);
                     let guard = Guard::new(position, direction);
-                    return Self {
-                        grid,
-                        guard,
-                        path: vec![position],
-                    };
+                    return Self { grid, guard };
                 }
             }
         }
@@ -143,21 +138,18 @@ impl World {
     }
 
     fn run(&mut self) -> usize {
+        let mut path = vec![self.guard.position];
         loop {
             let next = self.guard.next(self);
             match next {
                 Some(guard) => {
                     self.guard = guard;
-                    self.path.push(guard.position);
+                    path.push(guard.position);
                 }
                 None => break,
             }
         }
-        self.path
-            .clone()
-            .into_iter()
-            .collect::<HashSet<Position>>()
-            .len()
+        path.into_iter().collect::<HashSet<Position>>().len()
     }
 }
 
@@ -189,6 +181,6 @@ mod tests {
     #[test]
     fn test_part_2() {
         let result = part_2(INPUT);
-        assert_eq!(result, None);
+        assert_eq!(result, Some(6));
     }
 }
