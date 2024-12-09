@@ -48,6 +48,10 @@ name = "problem_5"
 version = "0.1.0"
 
 [[package]]
+name = "problem_6"
+version = "0.1.0"
+
+[[package]]
 name = "problem_template"
 version = "0.1.0"
 
