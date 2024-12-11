@@ -3,7 +3,7 @@ use std::collections::HashSet;
 pub fn part_1(input: &str) -> Option<i32> {
     let world = World::new(input);
     let guard = world.find_guard();
-    Some(run(&world, guard) as i32)
+    Some(run(&world, &guard).len() as i32)
 }
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
@@ -146,17 +146,21 @@ impl World {
         panic!("guard not found");
     }
 
-    fn with_distraction(&self, distraction: Position) -> Self {
+    fn with_distraction(&self, distraction: Position) -> Option<Self> {
         let mut world = self.clone();
-        world.grid[distraction.row][distraction.col] = '#';
-        world
+        if world.grid[distraction.row][distraction.col] == '.' {
+            world.grid[distraction.row][distraction.col] = '#';
+            Some(world)
+        } else {
+            None
+        }
     }
 }
 
-fn run(world: &World, guard: Guard) -> usize {
+fn run(world: &World, guard: &Guard) -> HashSet<Position> {
     let mut path = HashSet::new();
     path.insert(guard.position);
-    let mut guard = guard;
+    let mut guard = *guard;
     loop {
         let next = guard.next(&world.grid);
         match next {
@@ -167,55 +171,45 @@ fn run(world: &World, guard: Guard) -> usize {
             None => break,
         }
     }
-    path.len()
+    path
 }
 
-fn run_with_simulation(world: &World, mut guard: Guard) -> usize {
-    let mut visited = HashSet::new();
-    visited.insert(guard);
-
-    let mut successful_distractions = 0;
-
+fn loops(world: &World, guard: &Guard) -> bool {
+    let mut path = HashSet::new();
+    let mut guard = *guard;
+    path.insert(guard);
     loop {
-        match guard.peek(&world.grid) {
-            Some(('#', _)) => {}
-            None => {}
-            Some((_, position)) => {
-                let distracted = world.with_distraction(position);
-                let mut visited = visited.clone();
-                if loops(&distracted, guard, &mut visited) {
-                    successful_distractions += 1;
+        let next = guard.next(&world.grid);
+        match next {
+            Some(next_guard) => {
+                guard = next_guard;
+                if path.contains(&guard) {
+                    return true;
                 }
+                path.insert(guard);
             }
-        }
-
-        guard = match guard.next(&world.grid) {
-            Some(guard) => guard,
             None => break,
-        };
-    }
-
-    successful_distractions
-}
-
-fn loops(world: &World, guard: Guard, visited: &mut HashSet<Guard>) -> bool {
-    let next = guard.next(&world.grid);
-    match next {
-        Some(next) => {
-            if visited.contains(&next) {
-                return true;
-            }
-            visited.insert(next);
-            loops(world, next, visited)
         }
-        None => false,
     }
+    false
 }
 
 pub fn part_2(input: &str) -> Option<i32> {
     let world = World::new(input);
     let guard = world.find_guard();
-    Some(run_with_simulation(&world, guard) as i32)
+    let guard_places = run(&world, &guard);
+
+    let mut guard_loops = 0;
+
+    // if we place a distraction at any of the guard places, does it loop?
+    for place in guard_places {
+        if let Some(world) = world.with_distraction(place) {
+            if loops(&world, &guard) {
+                guard_loops += 1;
+            }
+        }
+    }
+    Some(guard_loops)
 }
 
 #[cfg(test)]
