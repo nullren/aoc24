@@ -26,7 +26,7 @@ mod tests {
     #[test]
     fn test_part_1() {
         let result = part_1(INPUT);
-        assert_eq!(result, None);
+        assert_eq!(result, Some(14));
     }
 
     #[test]
