@@ -16,7 +16,7 @@ impl<'a, T: Clone> SequenceIterator<'a, T> {
     }
 }
 
-impl<'a, T: Clone> Iterator for SequenceIterator<'a, T> {
+impl<T: Clone> Iterator for SequenceIterator<'_, T> {
     type Item = Vec<T>;
 
     fn next(&mut self) -> Option<Self::Item> {
