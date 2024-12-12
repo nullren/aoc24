@@ -60,6 +60,10 @@ name = "problem_8"
 version = "0.1.0"
 
 [[package]]
+name = "problem_9"
+version = "0.1.0"
+
+[[package]]
 name = "problem_template"
 version = "0.1.0"
 
@@ -67,5 +71,5 @@ version = "0.1.0"
 name = "runner"
 version = "0.1.0"
 dependencies = [
- "problem_8",
+ "problem_9",
 ]
