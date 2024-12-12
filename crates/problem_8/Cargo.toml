@@ -1,7 +1,6 @@
 [package]
-name = "runner"
+name = "problem_8"
 version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-problem_8 = { path = "../problem_8" }
