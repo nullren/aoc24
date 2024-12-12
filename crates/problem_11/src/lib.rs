@@ -1,14 +1,56 @@
+use std::collections::HashMap;
+
 pub fn part_1(input: &str) -> Option<usize> {
-    let mut inputs = input
+    let inputs = input
         .split_ascii_whitespace()
         .map(|n| n.parse::<u64>().unwrap())
         .collect::<Vec<_>>();
 
-    for _ in 0..25 {
-        inputs = apply_rules(&inputs);
+    let freq = freq_map(&inputs);
+    let mut solver = Solver::default();
+    Some(tally(&solver.solve(&freq)))
+}
+
+// let MEMO: HashMap<u64, Vec<u64>> = HashMap::new();
+
+#[derive(Default)]
+struct Solver {
+    memo: HashMap<u64, Vec<u64>>,
+}
+
+impl Solver {
+    pub fn solve_25(&mut self, input: u64) -> Vec<u64> {
+        if let Some(v) = self.memo.get(&input) {
+            return v.clone();
+        }
+        let mut inputs = vec![input];
+        for _ in 0..25 {
+            inputs = apply_rules(&inputs);
+        }
+        self.memo.insert(input, inputs.clone());
+        inputs
     }
 
-    Some(inputs.len())
+    pub fn solve(&mut self, freq: &HashMap<u64, usize>) -> HashMap<u64, usize> {
+        freq.iter().fold(HashMap::new(), |mut acc, (k, v)| {
+            let new_inputs = self.solve_25(*k);
+            for n in new_inputs {
+                *acc.entry(n).or_insert(0) += v;
+            }
+            acc
+        })
+    }
+}
+
+fn freq_map(inputs: &[u64]) -> HashMap<u64, usize> {
+    inputs.iter().fold(HashMap::new(), |mut acc, &n| {
+        *acc.entry(n).or_insert(0) += 1;
+        acc
+    })
+}
+
+fn tally(inputs: &HashMap<u64, usize>) -> usize {
+    inputs.values().sum()
 }
 
 fn evaluate_rules(input: u64) -> Vec<u64> {
@@ -34,8 +76,18 @@ fn apply_rules(inputs: &[u64]) -> Vec<u64> {
         .collect()
 }
 
-pub fn part_2(_input: &str) -> Option<i32> {
-    None
+pub fn part_2(input: &str) -> Option<usize> {
+    let inputs = input
+        .split_ascii_whitespace()
+        .map(|n| n.parse::<u64>().unwrap())
+        .collect::<Vec<_>>();
+
+    let freq = freq_map(&inputs);
+    let mut solver = Solver::default();
+    let freq = solver.solve(&freq); // 25
+    let freq = solver.solve(&freq); // 50
+    let freq = solver.solve(&freq); // 75
+    Some(tally(&freq))
 }
 
 #[cfg(test)]
