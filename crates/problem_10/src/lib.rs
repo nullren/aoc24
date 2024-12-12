@@ -47,8 +47,49 @@ fn trails(grid: &[Vec<char>], current: char, row: usize, col: usize) -> Vec<(usi
     ends
 }
 
-pub fn part_2(_input: &str) -> Option<i32> {
-    None
+pub fn part_2(input: &str) -> Option<i32> {
+    let grid = input
+        .lines()
+        .map(|line| line.chars().collect::<Vec<char>>())
+        .collect::<Vec<Vec<char>>>();
+
+    let mut scores = 0;
+    for row in 0..grid.len() {
+        for col in 0..grid[0].len() {
+            if grid[row][col] == '0' {
+                scores += rating(&grid, '0', row, col);
+            }
+        }
+    }
+    Some(scores as i32)
+}
+
+fn rating(grid: &[Vec<char>], current: char, row: usize, col: usize) -> usize {
+    if current == '9' {
+        return 1;
+    }
+
+    // find next step
+    let next = (current as u8 + 1) as char;
+
+    let mut count = 0;
+    if row > 0 && grid[row - 1][col] == next {
+        count += rating(grid, next, row - 1, col);
+    }
+
+    if row < grid.len() - 1 && grid[row + 1][col] == next {
+        count += rating(grid, next, row + 1, col);
+    }
+
+    if col > 0 && grid[row][col - 1] == next {
+        count += rating(grid, next, row, col - 1);
+    }
+
+    if col < grid[0].len() - 1 && grid[row][col + 1] == next {
+        count += rating(grid, next, row, col + 1);
+    }
+
+    count
 }
 
 #[cfg(test)]
@@ -73,6 +114,6 @@ mod tests {
     #[test]
     fn test_part_2() {
         let result = part_2(INPUT);
-        assert_eq!(result, None);
+        assert_eq!(result, Some(81));
     }
 }
